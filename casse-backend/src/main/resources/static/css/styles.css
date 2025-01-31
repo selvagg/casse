@@ -1,0 +1,137 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body and page background */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff; /* Light blue background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+}
+
+/* Container for the form */
+.container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+.container-small{
+}
+
+/* Logout button */
+.logout-button {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 5px 10px; /* Smaller padding */
+    background-color: #D21F3C; /* Redis purple */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 12px; /* Smaller font size */
+    text-align: center;
+    transition: background 0.3s ease-in-out;
+    margin-left: auto;
+    margin-right: auto;
+    display: block; /* Ensure it's centered */
+}
+
+/* Heading */
+h1 {
+    color: #4CAF50; /* Green color for the title */
+    margin-bottom: 20px;
+}
+
+/* Heading */
+h2 {
+    text-align: center;
+    color: #4CAF50; /* Green color for the title */
+    margin-bottom: 20px;
+}
+
+/* Spacer styling */
+.spacer {
+    margin-bottom: 20px;
+}
+
+/* Song list styling */
+ul.song-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul.song-list li {
+    background-color: #f4f4f4;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+ul.song-list li:hover {
+    background-color: #e0e0e0;
+}
+/* Form group styling */
+.form-group {
+    margin-bottom: 15px;
+}
+
+/* Label styling */
+label {
+    display: block;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+/* Input fields styling */
+input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Button styling */
+button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #9057af; /* Green button */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button[type="submit"]:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+/* Signup link */
+.signup-link {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+.signup-link:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Design: Ensure good display on smaller screens */
+@media (max-width: 600px) {
+    .container {
+        width: 90%;
+    }
+}

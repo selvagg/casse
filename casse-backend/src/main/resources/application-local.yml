@@ -1,0 +1,11 @@
+cloudflare:
+  r2:
+    access-key: f3e4f76d0a4891437eab5988a3baee36
+    secret-key: 98c6c4817a6f56fe101419593272678a525c1a166e8084a2682f16a2c443d384
+    endpoint: https://b704abdea7192ba7b6ca2d67bb155474.r2.cloudflarestorage.com
+
+spring:
+  datasource:
+    jpa:
+      hibernate:
+        ddl-auto: create

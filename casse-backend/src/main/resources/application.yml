@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: casse
+
+  session:
+    store-type: redis
+    redis:
+      namespace: casse-sessions
+      configure-action: none
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-cassie-users.xml
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+
+  data:
+    redis:
+      url: redis://redis:6666
+
+  datasource:
+    url: jdbc:postgresql://postgres:1414/casse_db
+    username: casse-local
+    password: makemusic
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+    jpa:
+      hibernate:
+        ddl-auto: none  # Can be 'create', 'update', 'validate', or 'none'
+      show-sql: true
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  tomcat:
+    max-swallow-size=100MB:
+
+cloudflare:
+  r2:
+    access-key: ''
+    secret-key: ''
+    region: auto
+    bucket-name: casse-audio-files
+    endpoint: https://${CLOUDFARE_ACCOUNT_ID}.r2.cloudflarestorage.com

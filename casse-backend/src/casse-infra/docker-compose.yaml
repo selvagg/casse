@@ -1,0 +1,47 @@
+services:
+
+  cassie-service:
+    image: starflutesg/casse-backend:v0.1.0-main-f825417
+    container_name: cassie-service
+    working_dir: /app
+    environment:
+      CLOUDFLARE_R2_ACCESS_KEY: ${CLOUDFLARE_R2_ACCESS_KEY}
+      CLOUDFLARE_R2_SECRET_KEY: ${CLOUDFLARE_R2_SECRET_KEY}
+      CLOUDFARE_ACCOUNT_ID:  ${CLOUDFARE_ACCOUNT_ID}
+      SPRING_DATA_REDIS_URL: redis://redis:6379
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/casse_db
+    ports:
+      - 8888:8080
+    networks:
+      - casse-network
+
+  redis:
+    image: redis:latest
+    container_name: casse-redis
+    ports:
+      - "6666:6379"  # Redis exposed on port 6666
+    networks:
+      - casse-network
+
+  postgres:
+    image: postgres:latest
+    container_name: casse-postgres
+    environment:
+      POSTGRES_USER: casse-local
+      POSTGRES_PASSWORD: makemusic
+      POSTGRES_DB: casse_db  # Specify the database name
+    ports:
+      - "1414:5432"  # PostgreSQL exposed on port 1414
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d  # Mount initialization scripts
+    networks:
+      - casse-network
+
+networks:
+  casse-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
