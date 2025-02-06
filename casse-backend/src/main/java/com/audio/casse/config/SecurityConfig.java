@@ -35,7 +35,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.ignoringRequestMatchers("/login", "/audio/upload", "/signup"))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/signup", "/css/styles.css").permitAll()
+                .requestMatchers("/login", "/signup", "/css/styles.css", "/actuator/health").permitAll()
                 .requestMatchers(HttpMethod.POST, "/**").permitAll()
                 .anyRequest().authenticated()
             )
