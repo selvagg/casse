@@ -33,7 +33,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/login", "/audio/upload"))
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/login", "/audio/upload", "/signup"))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/signup", "/css/styles.css").permitAll()
                 .requestMatchers(HttpMethod.POST, "/**").permitAll()
