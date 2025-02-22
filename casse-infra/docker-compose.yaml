@@ -8,6 +8,7 @@ services:
       CLOUDFLARE_R2_ACCESS_KEY: admin  # Matches Cloudflare config
       CLOUDFLARE_R2_SECRET_KEY: password
       CLOUDFLARE_R2_ENDPOINT: http://minio:9000  # Local MinIO URL
+      CLOUDFLARE_R2_BUCKET: casse-bucket  # Local MinIO URL
       CLOUDFARE_ACCOUNT_ID: casse
       SPRING_DATA_REDIS_URL: redis://redis:6379
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/casse_db
