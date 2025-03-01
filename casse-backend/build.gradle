@@ -50,7 +50,9 @@ def appVersion = project.version ?: "latest"
 def gitCommitShort = "git rev-parse --short=7 HEAD".execute().text.trim()
 
 // Build the final image tag
-def imageTag = "${appVersion}-main-${gitCommitShort}"
+def branchName = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
+def branchPrefix = branchName.split('/')[0]
+def imageTag = "${appVersion}-${branchPrefix}-${gitCommitShort}"
 
 jib {
     from {

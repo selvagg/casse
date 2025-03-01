@@ -1,7 +1,7 @@
 services:
 
   casse-service:
-    image: starflutesg/casse-backend:v0.1.0-main-6999cc8
+    image: starflutesg/casse-backend:v0.1.0-develop-b77774b
     container_name: cassie-service
     working_dir: /app
     environment:
