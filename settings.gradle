@@ -7,4 +7,3 @@
 
 rootProject.name = 'casse'
 include 'casse-backend'
-include 'casse-ios-app'
