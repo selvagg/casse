@@ -12,7 +12,7 @@ services:
     ports:
       - "9200:9200"
     networks:
-      - my_infra
+      - casse-network
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.17.4
@@ -24,12 +24,12 @@ services:
     ports:
       - "5601:5601"
     networks:
-      - my_infra
+      - casse-network
 
 volumes:
   es_data:
 
 networks:
-  my_infra:
+  casse-network:
     driver: bridge
-    name: my-infra
+    name: casse-network
