@@ -46,6 +46,11 @@ spring:
     redis:
       url: redis://redis:6666
 
+casse:
+  pending:
+    approval:
+      ttl: P30D
+
 server:
   tomcat:
     max-swallow-size=100MB:

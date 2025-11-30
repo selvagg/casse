@@ -14,13 +14,4 @@ public class LoginSignupController {
     public String showLoginPage() {
         return "login";
     }
-
-    @GetMapping("/home")
-    public String showHomePage(Model model, Authentication authentication) {
-        if (Objects.nonNull(authentication) && authentication.getPrincipal() instanceof OAuth2User) {
-            OAuth2User currentUser = (OAuth2User) authentication.getPrincipal();
-            model.addAttribute("name", currentUser.getAttribute("name"));
-        }
-        return "home";
-    }
 }
