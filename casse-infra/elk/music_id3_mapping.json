@@ -1,0 +1,118 @@
+{
+  "settings": {
+    "analysis": {
+      "tokenizer": {
+        "autocomplete_tok": {
+          "type": "edge_ngram",
+          "min_gram": 2,
+          "max_gram": 20,
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
+        }
+      },
+      "analyzer": {
+        "autocomplete": {
+          "tokenizer": "autocomplete_tok",
+          "filter": [
+            "lowercase",
+            "trim"
+          ]
+        }
+      },
+      "normalizer": {
+        "lowercase_fold": {
+          "type": "custom",
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text",
+        "analyzer": "standard",
+        "fields": {
+          "autocomplete": {
+            "type": "text",
+            "analyzer": "autocomplete",
+            "search_analyzer": "standard"
+          },
+          "keyword": {
+            "type": "keyword",
+            "normalizer": "lowercase_fold"
+          }
+        }
+      },
+      "artists": {
+        "type": "text",
+        "analyzer": "standard",
+        "fields": {
+          "autocomplete": {
+            "type": "text",
+            "analyzer": "autocomplete",
+            "search_analyzer": "standard"
+          },
+          "keyword": {
+            "type": "keyword",
+            "normalizer": "lowercase_fold"
+          }
+        }
+      },
+      "album": {
+        "type": "text",
+        "analyzer": "standard",
+        "fields": {
+          "autocomplete": {
+            "type": "text",
+            "analyzer": "autocomplete",
+            "search_analyzer": "standard"
+          },
+          "keyword": {
+            "type": "keyword",
+            "normalizer": "lowercase_fold"
+          }
+        }
+      },
+      "composer": {
+        "type": "text",
+        "analyzer": "standard",
+        "fields": {
+          "autocomplete": {
+            "type": "text",
+            "analyzer": "autocomplete",
+            "search_analyzer": "standard"
+          },
+          "keyword": {
+            "type": "keyword",
+            "normalizer": "lowercase_fold"
+          }
+        }
+      },
+      "tags": {
+        "type": "text",
+        "analyzer": "standard",
+        "fields": {
+          "autocomplete": {
+            "type": "text",
+            "analyzer": "autocomplete",
+            "search_analyzer": "standard"
+          },
+          "keyword": {
+            "type": "keyword",
+            "normalizer": "lowercase_fold"
+          }
+        }
+      },
+      "email": {
+        "type": "keyword",
+        "normalizer": "lowercase_fold"
+      }
+    }
+  }
+}
