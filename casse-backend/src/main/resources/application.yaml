@@ -1,6 +1,8 @@
 spring:
   application:
     name: casse
+  elasticsearch:
+    uris: http://localhost:9200
   security:
     oauth2:
       client:
@@ -50,8 +52,8 @@ server:
 
 cloudflare:
   r2:
-    access-key: ''
-    secret-key: ''
+    access-key: ${CLOUDFARE_ACCESS_KEY}
+    secret-key: ${CLOUDFARE_SECRET_KEY}
     region: auto
     bucket-name: casse-audio
     endpoint: https://${CLOUDFARE_ACCOUNT_ID}.r2.cloudflarestorage.com

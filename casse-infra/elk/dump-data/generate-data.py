@@ -4,8 +4,9 @@ from elasticsearch.helpers import parallel_bulk
 from faker import Faker
 import random
 import uuid
+import sys
 
-ES_HOST = "http://localhost:9200"
+ES_HOST = "http://elasticsearch1:9200" # Changed from localhost to elasticsearch1 service name
 INDEX   = "music_id3"
 TOTAL   = 1_000_000
 CHUNK   = 5_000
@@ -13,11 +14,20 @@ THREADS    = 4     # number of worker threads
 QUEUE_SIZE = 8     # prefetch queue size per thread
 
 fake = Faker()
-artists_pool = ["the_beatles", "queen", "michael_jackson", "taylor_swift", "coldplay"]
-tags_pool    = ["rock", "pop", "classic", "dance", "ballad", "jazz", "hiphop"]
-genre_pool   = ["rock", "pop", "classic", "dance", "jazz", "hiphop", "blues"]
+artists_pool = ["The Beatles", "Queen", "Michael Jackson", "Taylor Swift", "Coldplay"]
+tags_pool    = ["Rock", "Pop", "Classic", "Dance", "Jazz", "Hip-Hop", "Blues"]
 
-es = Elasticsearch(ES_HOST)
+print(f"Connecting to Elasticsearch at {ES_HOST}...", file=sys.stderr)
+try:
+    es = Elasticsearch(ES_HOST)
+    # Ping to check connection
+    if not es.ping():
+        raise ValueError("Connection to Elasticsearch failed!")
+    print("Successfully connected to Elasticsearch.", file=sys.stderr)
+except Exception as e:
+    print(f"Error connecting to Elasticsearch: {e}", file=sys.stderr)
+    sys.exit(1)
+
 
 def generate_actions():
     for _ in range(TOTAL):
@@ -28,32 +38,35 @@ def generate_actions():
             "_id":    doc_id,
             "_source": {
                 "title":        fake.sentence(nb_words=3).rstrip("."),
-                "artists":      [random.choice(artists_pool)],
+                "artists":      ", ".join(random.sample(artists_pool, k=random.randint(1, 2))),
                 "album":        fake.sentence(nb_words=2).rstrip("."),
                 "release_date": release.isoformat(),
                 "year":         release.year,
-                "genre":        random.choice(genre_pool),
                 "composer":     fake.name(),
                 "lyrics":       fake.text(max_nb_chars=200),
                 "duration_ms":  random.randint(120_000, 300_000),
                 "comment":      fake.sentence(nb_words=6),
-                "tags":         random.sample(tags_pool, k=random.randint(1, 3)),
+                "tags":         ", ".join(random.sample(tags_pool, k=random.randint(1, 3))),
                 "email":        fake.email()
             }
         }
 
-# Stream directly in batches; existing docs remain untouched
-# helpers.bulk(es, generate_actions(), chunk_size=CHUNK, request_timeout=60)
-
-
-# parallel_bulk returns a generator of (ok, info) tuples
-for ok, info in parallel_bulk(
-        client        = es,
-        actions       = generate_actions(),
-        thread_count  = THREADS,
-        chunk_size    = CHUNK,
-        queue_size    = QUEUE_SIZE,
-        request_timeout=60
-):
-    if not ok:
-        print("failed:", info)
+print(f"Starting data generation and indexing {TOTAL} documents into index '{INDEX}'...", file=sys.stderr)
+success_count = 0
+try:
+    for ok, info in parallel_bulk(
+            client        = es,
+            actions       = generate_actions(),
+            thread_count  = THREADS,
+            chunk_size    = CHUNK,
+            queue_size    = QUEUE_SIZE,
+            request_timeout=60
+    ):
+        if not ok:
+            print(f"Failed to index document: {info}", file=sys.stderr)
+        else:
+            success_count += 1
+    print(f"Data generation complete. Successfully indexed {success_count} documents.", file=sys.stderr)
+except Exception as e:
+    print(f"An error occurred during bulk indexing: {e}", file=sys.stderr)
+    sys.exit(1)
