@@ -1,46 +1,10 @@
 services:
 
-  casse-service:
-    image: starflutesg/casse-backend:v0.1.0-main-6999cc8
-    container_name: cassie-service
-    working_dir: /app
-    environment:
-      CLOUDFLARE_R2_ACCESS_KEY: admin  # Matches Cloudflare config
-      CLOUDFLARE_R2_SECRET_KEY: password
-      CLOUDFLARE_R2_ENDPOINT: http://minio:9000  # Local MinIO URL
-      CLOUDFLARE_R2_BUCKET: casse-bucket  # Local MinIO URL
-      CLOUDFARE_ACCOUNT_ID: casse
-      SPRING_DATA_REDIS_URL: redis://redis:6379
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/casse_db
-    ports:
-      - 8888:8080
-    networks:
-      - casse-network
-    depends_on:
-      - redis
-      - postgres
-      - minio
-
   redis:
     image: redis:latest
     container_name: casse-redis
     ports:
       - "6666:6379"
-    networks:
-      - casse-network
-
-  postgres:
-    image: postgres:latest
-    container_name: casse-postgres
-    environment:
-      POSTGRES_USER: casse-local
-      POSTGRES_PASSWORD: makemusic
-      POSTGRES_DB: casse_db
-    ports:
-      - "1414:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d
     networks:
       - casse-network
 
@@ -66,8 +30,8 @@ services:
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc alias set local http://minio:9000 admin password;
-      /usr/bin/mc mb local/casse-bucket;
-      /usr/bin/mc policy set public local/casse-bucket;
+      /usr/bin/mc mb local/casse-audio;
+      /usr/bin/mc policy set public local/casse-audio;
       exit 0;
       "
     networks:
@@ -78,7 +42,5 @@ networks:
     driver: bridge
 
 volumes:
-  postgres-data:
-    driver: local
   minio-data:
     driver: local

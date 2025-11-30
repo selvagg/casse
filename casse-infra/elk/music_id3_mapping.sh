@@ -73,6 +73,10 @@ curl -X PUT "http://localhost:9200/music_id3" -H 'Content-Type: application/json
       "tags": {
         "type":       "keyword",
         "normalizer": "lowercase_fold"
+      },
+      "email": {
+        "type":       "keyword",
+        "normalizer": "lowercase_fold"
       }
     }
   }

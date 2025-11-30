@@ -23,18 +23,15 @@ public class CloudflareR2Service {
 
     private final S3Client s3Client;
     private final String bucketName;
-    private final UserService userService;
     private final String endpoint;
 
     public CloudflareR2Service(
             @Value("${cloudflare.r2.access-key}") String accessKey,
             @Value("${cloudflare.r2.secret-key}") String secretKey,
             @Value("${cloudflare.r2.endpoint}") String endpoint,
-            @Value("${cloudflare.r2.bucket}") String bucketName, // Match the YAML key
-            UserService userService) {
+            @Value("${cloudflare.r2.bucket-name}") String bucketName) {
 
         this.bucketName = bucketName;
-        this.userService = userService;
         this.endpoint = endpoint;
 
         this.s3Client = S3Client.builder()
@@ -45,8 +42,8 @@ public class CloudflareR2Service {
                 .build();
     }
 
-    public void uploadFile(MultipartFile file) throws IOException {
-        String objectKey = userService.getId() + "/" + file.getOriginalFilename();
+    public void uploadFile(MultipartFile file, String userName) throws IOException {
+        String objectKey = userName + "/" + file.getOriginalFilename();
 
         PutObjectRequest request = PutObjectRequest.builder()
                 .bucket(bucketName)
@@ -58,30 +55,30 @@ public class CloudflareR2Service {
         s3Client.putObject(request, fromInputStream(file.getInputStream(), file.getSize()));
     }
 
-    public String generatePresignedUrl(String fileName) {
-        String objectKey = userService.getId() + "/" + fileName;
+    public String generatePresignedUrl(String fileName, String userName) {
+        String objectKey = userName + "/" + fileName;
         return endpoint.contains("localhost") ?
                 String.format("%s/%s/%s", endpoint, bucketName, objectKey) : // MinIO Direct URL
                 String.format("https://%s.r2.cloudflarestorage.com/%s/%s", bucketName, bucketName, objectKey); // Cloudflare R2
     }
 
-    public List<String> listFiles() {
+    public List<String> listFiles(String userName) {
         ListObjectsV2Request request = ListObjectsV2Request.builder()
                 .bucket(bucketName)
-                .prefix(userService.getId() + "/")
+                .prefix(userName + "/")
                 .build();
 
         ListObjectsV2Response response = s3Client.listObjectsV2(request);
         return response.contents().stream()
                 .map(S3Object::key)
-                .map(key -> key.split("/")[1])
+                .map(key -> key.substring(key.indexOf("/") + 1))
                 .toList();
     }
 
-    public ResponseInputStream<GetObjectResponse> streamFile(String fileName) {
+    public ResponseInputStream<GetObjectResponse> streamFile(String fileName, String userName) {
         GetObjectRequest request = GetObjectRequest.builder()
                 .bucket(bucketName)
-                .key(userService.getId() + "/" + fileName)
+                .key(userName + "/" + fileName)
                 .build();
 
         return s3Client.getObject(request);

@@ -27,7 +27,6 @@ def generate_actions():
             "_index": INDEX,
             "_id":    doc_id,
             "_source": {
-                "song_id":      doc_id,           # or keep separate if you prefer
                 "title":        fake.sentence(nb_words=3).rstrip("."),
                 "artists":      [random.choice(artists_pool)],
                 "album":        fake.sentence(nb_words=2).rstrip("."),
@@ -38,7 +37,8 @@ def generate_actions():
                 "lyrics":       fake.text(max_nb_chars=200),
                 "duration_ms":  random.randint(120_000, 300_000),
                 "comment":      fake.sentence(nb_words=6),
-                "tags":         random.sample(tags_pool, k=random.randint(1, 3))
+                "tags":         random.sample(tags_pool, k=random.randint(1, 3)),
+                "email":        fake.email()
             }
         }
 

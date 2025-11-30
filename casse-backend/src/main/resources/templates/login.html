@@ -4,25 +4,86 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="/css/styles.css"> <!-- Link to the CSS file -->
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .login-container {
+            text-align: center;
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-bottom: 30px;
+            color: #1c1e21;
+        }
+        .oauth-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            text-decoration: none;
+            color: #333;
+            background-color: #fff;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .oauth-button:hover {
+            background-color: #f5f5f5;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .oauth-button svg {
+            margin-right: 15px;
+            width: 24px;
+            height: 24px;
+        }
+        .instagram-button {
+            background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+            color: white;
+            border: none;
+        }
+        .instagram-button:hover {
+            opacity: 0.9;
+            background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <h2>Login</h2>
-    <form action="/login" method="post">
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required />
-        </div>
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required />
-        </div>
-        <button type="submit" class="btn">Login</button>
-    </form>
-    <div>
-        <a href="/signup" class="signup-link">Don't have an account? Sign up</a>
-    </div>
+<div class="login-container">
+    <h2>Sign In</h2>
+    <a href="/oauth2/authorization/google" class="oauth-button">
+        <svg viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            <path fill="none" d="M1 1h22v22H1z"/>
+        </svg>
+        Sign in with Google
+    </a>
+    <a href="/oauth2/authorization/facebook" class="oauth-button">
+        <svg viewBox="0 0 24 24">
+            <path fill="#1877F2" d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3l-.5 3h-2.5v6.8c4.56-.93 8-4.96 8-9.8z"/>
+        </svg>
+        Sign in with Facebook
+    </a>
+    <a href="/oauth2/authorization/instagram" class="oauth-button instagram-button">
+        <svg viewBox="0 0 24 24">
+            <path fill="white" d="M12 2.163c3.204 0 3.584.012 4.85.07 1.266.058 2.14.29 2.91.584.792.303 1.44.71 2.05 1.32s.99 1.258 1.29 2.05c.295.77.526 1.644.584 2.91.058 1.265.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.058 1.266-.29 2.14-.584 2.91-.303.792-.71 1.44-1.32 2.05s-1.258.99-2.05 1.29c-.77.295-1.644.526-2.91.584-1.265.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.266-.058-2.14-.29-2.91-.584-.792-.303-1.44-.71-2.05-1.32s-.99-1.258-1.29-2.05c-.295-.77-.526-1.644-.584-2.91-.058-1.265-.07-1.646-.07-4.85s.012-3.584.07-4.85c.058-1.266.29-2.14.584-2.91.303-.792.71-1.44 1.32-2.05s1.258-.99 2.05-1.29c.77-.295 1.644-.526 2.91-.584C8.416 2.175 8.796 2.163 12 2.163zm0 1.802c-3.26 0-3.652.012-4.92.07-1.18.053-1.88.28-2.41.487-.545.21-.96.477-1.38.9s-.69.835-.9 1.38c-.207.53-.434 1.23-.487 2.41-.058 1.267-.07 1.66-.07 4.92s.012 3.652.07 4.92c.053 1.18.28 1.88.487 2.41.21.545.477.96.9 1.38s.835.69 1.38.9c.53.207 1.23.434 2.41.487 1.267.058 1.66.07 4.92.07s3.652-.012 4.92-.07c1.18-.053 1.88-.28 2.41-.487.545-.21.96-.477 1.38-.9s.69-.835.9-1.38c.207-.53.434-1.23.487-2.41.058-1.267.07-1.66.07-4.92s-.012-3.652-.07-4.92c-.053-1.18-.28-1.88-.487-2.41-.21-.545-.477-.96-.9-1.38s-.835-.69-1.38-.9c-.53-.207-1.23-.434-2.41-.487C15.652 3.977 15.26 3.965 12 3.965zM12 6.873c-2.84 0-5.127 2.286-5.127 5.127s2.286 5.127 5.127 5.127 5.127-2.286 5.127-5.127-2.286-5.127-5.127-5.127zm0 8.452c-1.83 0-3.325-1.495-3.325-3.325s1.495-3.325 3.325-3.325 3.325 1.495 3.325 3.325-1.495 3.325-3.325 3.325zm5.23-6.82c-.69 0-1.25.56-1.25 1.25s.56 1.25 1.25 1.25 1.25-.56 1.25-1.25-.56-1.25-1.25-1.25z"/>
+        </svg>
+        Sign in with Instagram
+    </a>
 </div>
 </body>
 </html>

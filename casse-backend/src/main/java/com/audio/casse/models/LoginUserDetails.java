@@ -1,21 +1,29 @@
 package com.audio.casse.models;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @Builder
 @Data
-public class LoginUserDetails implements UserDetails {
+@NoArgsConstructor
+@AllArgsConstructor
+public class LoginUserDetails implements UserDetails, OAuth2User, Serializable {
 
-    private final Long id;
-    private final String email;
-    private final String password;
-    private final String firstName;
-    private final String lastName;
+    private static final long serialVersionUID = 1L;
+
+    private String email;
+    private String firstName;
+    private String lastName;
+    private Map<String, Object> attributes;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -45,5 +53,22 @@ public class LoginUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
+    }
+
+
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    @Override
+    public String getName() {
+        return email;
+    }
+
+    @Override
+    public String getPassword() {
+        return null;
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,9 +31,9 @@ public class AudioStreamingController {
     }
 
     @PostMapping("upload")
-    public ResponseEntity<String> uploadAudio(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> uploadAudio(@RequestParam("file") MultipartFile file, Authentication authentication) {
         try {
-            r2Service.uploadFile(file);
+            r2Service.uploadFile(file, authentication.getName());
             return ResponseEntity.ok("File uploaded successfully!");
         } catch (IOException e) {
             return ResponseEntity.internalServerError().body("Upload failed: " + e.getMessage());
@@ -40,20 +41,15 @@ public class AudioStreamingController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<String>> listAudioFiles() {
-        List<String> fileNames = r2Service.listFiles();
+    public ResponseEntity<List<String>> listAudioFiles(Authentication authentication) {
+        List<String> fileNames = r2Service.listFiles(authentication.getName());
         return ResponseEntity.ok(fileNames);
     }
 
     @GetMapping("/stream-direct/{fileName}")
-    public ResponseEntity<InputStreamResource> streamAudio(@PathVariable String fileName) {
+    public ResponseEntity<InputStreamResource> streamAudio(@PathVariable String fileName, Authentication authentication) {
         try {
-            GetObjectRequest request = GetObjectRequest.builder()
-                .bucket(r2Service.getBucketName())
-                .key(fileName)
-                .build();
-
-            ResponseInputStream<GetObjectResponse> responseFromS3 = r2Service.streamFile(fileName);
+            ResponseInputStream<GetObjectResponse> responseFromS3 = r2Service.streamFile(fileName, authentication.getName());
             GetObjectResponse objectResponse = responseFromS3.response();
 
             HttpHeaders headers = new HttpHeaders();
@@ -67,4 +63,3 @@ public class AudioStreamingController {
         }
     }
 }
-
