@@ -47,9 +47,15 @@ public class AudioStreamingController {
 
         if (!file.isEmpty()) {
             try {
-                song.setStorageAccessKey(file.getOriginalFilename());
+                String originalFilename = file.getOriginalFilename();
+                String extension = "";
+                if (originalFilename != null && originalFilename.contains(".")) {
+                    extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                }
+                String newFileName = song.getTitle() + extension;
+                song.setStorageAccessKey(newFileName);
                 log.info("Setting storageAccessKey in AudioStreamingController: {}", song.getStorageAccessKey());
-                r2Service.uploadFile(file, email);
+                r2Service.uploadFile(file, email, newFileName);
             } catch (IOException e) {
                 log.error("File upload failed for user {}: {}", email, e.getMessage());
                 return "redirect:/home?error=file_upload_failed";
@@ -61,8 +67,9 @@ public class AudioStreamingController {
 
         if (!albumArt.isEmpty()) {
             try {
-                r2Service.uploadFile(albumArt, email);
-                song.setAlbumArt(albumArt.getOriginalFilename());
+                String originalFilename = albumArt.getOriginalFilename();
+                r2Service.uploadFile(albumArt, email, originalFilename);
+                song.setAlbumArt(originalFilename);
             } catch (IOException e) {
                 log.error("Album art upload failed for user {}: {}", email, e.getMessage());
                 return "redirect:/home?error=album_art_upload_failed";

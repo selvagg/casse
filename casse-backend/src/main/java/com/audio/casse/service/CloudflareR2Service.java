@@ -47,8 +47,8 @@ public class CloudflareR2Service {
                 .build();
     }
 
-    public void uploadFile(MultipartFile file, String userName) throws IOException {
-        String objectKey = userName + "/" + file.getOriginalFilename();
+    public void uploadFile(MultipartFile file, String userName, String fileName) throws IOException {
+        String objectKey = userName + "/" + fileName;
 
         PutObjectRequest request = PutObjectRequest.builder()
                 .bucket(bucketName)

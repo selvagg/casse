@@ -65,8 +65,9 @@ public class Song {
     @Field(type = FieldType.Keyword, normalizer = "lowercase_fold")
     private String email;
 
+    @Field(type = FieldType.Keyword)
     private String storageAccessKey;
 
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Keyword)
     private String albumArt;
 }

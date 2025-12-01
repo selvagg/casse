@@ -113,8 +113,11 @@
         "type": "keyword",
         "normalizer": "lowercase_fold"
       },
+      "storageAccessKey": {
+        "type": "keyword"
+      },
       "albumArt": {
-        "type": "text"
+        "type": "keyword"
       }
     }
   }
