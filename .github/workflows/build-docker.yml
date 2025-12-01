@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - debug
+      - main
 
 jobs:
   build-and-push:
@@ -20,14 +20,6 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-
-      - name: Debug secrets (TEMPORARY - REMOVE AFTER DEBUGGING)
-        run: |
-          echo "DOCKER_HUB_USERNAME length: ${{ secrets.DOCKER_HUB_USERNAME && secrets.DOCKER_HUB_USERNAME.length || 0 }}"
-          echo "DOCKER_HUB_TOKEN length: ${{ secrets.DOCKER_HUB_TOKEN && secrets.DOCKER_HUB_TOKEN.length || 0 }}"
-          echo "DOCKER_HUB_USERNAME value: ${{ secrets.DOCKER_HUB_USERNAME }}"
-          echo "DOCKER_HUB_TOKEN value: ${{ secrets.DOCKER_HUB_TOKEN }}"
-        shell: bash
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
