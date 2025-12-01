@@ -5,11 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.annotations.InnerField;
-import org.springframework.data.elasticsearch.annotations.MultiField;
+import org.springframework.data.elasticsearch.annotations.*;
 
 @Data
 @NoArgsConstructor
@@ -69,5 +65,5 @@ public class Song {
     @Field(type = FieldType.Keyword, normalizer = "lowercase_fold")
     private String email;
 
-    private String storageAccessKey; // New field for the audio file URL
+    private String storageAccessKey;
 }

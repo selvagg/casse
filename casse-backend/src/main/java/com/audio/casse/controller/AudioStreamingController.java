@@ -1,10 +1,14 @@
 package com.audio.casse.controller;
 
 import com.audio.casse.models.Song;
+import com.audio.casse.repository.SongsRepository;
 import com.audio.casse.service.CloudflareR2Service;
+import com.audio.casse.service.EmailService;
 import com.audio.casse.service.PendingApprovalService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,30 +30,36 @@ import java.util.List;
 @AllArgsConstructor
 public class AudioStreamingController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AudioStreamingController.class);
+
     private final CloudflareR2Service r2Service;
     private final PendingApprovalService approvalService;
+    private final SongsRepository songsRepository;
+    private final EmailService emailService;
 
     @PostMapping("/upload")
     public String handleUpload(@ModelAttribute Song song,
-                               @RequestParam("file") MultipartFile file, // Add MultipartFile parameter
-                               @AuthenticationPrincipal OAuth2User principal) throws JsonProcessingException, IOException { // Add IOException
+                               @RequestParam("file") MultipartFile file,
+                               @AuthenticationPrincipal OAuth2User principal) throws IOException {
         String email = principal.getAttribute("email");
         song.setEmail(email);
 
         if (!file.isEmpty()) {
             try {
                 song.setStorageAccessKey(file.getOriginalFilename());
-                // Upload file to R2
+                logger.info("Setting storageAccessKey in AudioStreamingController: {}", song.getStorageAccessKey());
                 r2Service.uploadFile(file, email);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("File upload failed for user {}: {}", email, e.getMessage());
                 return "redirect:/home?error=file_upload_failed";
             }
         } else {
+            logger.warn("No file selected for upload by user {}", email);
             return "redirect:/home?error=no_file_selected";
         }
 
         approvalService.storePendingApproval(email, song);
+        logger.info("Song '{}' submitted for approval by '{}'. StorageAccessKey: {}", song.getTitle(), email, song.getStorageAccessKey());
         return "redirect:/home?success=song_submitted";
     }
 
@@ -72,7 +82,58 @@ public class AudioStreamingController {
 
             return new ResponseEntity<>(new InputStreamResource(responseFromS3), headers, HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Error streaming audio direct '{}' for user {}: {}", fileName, authentication.getName(), e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/stream")
+    public ResponseEntity<InputStreamResource> streamApprovedAudio(
+            @RequestParam("email") String uploaderEmail,
+            @RequestParam("title") String songTitle,
+            @RequestParam("key") String storageAccessKey) {
+        try {
+            logger.info("Streaming approved audio for song '{}' by '{}' with key '{}'", songTitle, uploaderEmail, storageAccessKey);
+            ResponseInputStream<GetObjectResponse> responseFromS3 = r2Service.streamFile(storageAccessKey, uploaderEmail);
+            GetObjectResponse objectResponse = responseFromS3.response();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType(objectResponse.contentType()));
+            headers.setContentLength(objectResponse.contentLength());
+            headers.set("Accept-Ranges", "bytes");
+            headers.setContentDispositionFormData("attachment", songTitle + ".mp3");
+
+            return new ResponseEntity<>(new InputStreamResource(responseFromS3), headers, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error streaming approved audio for song '{}' by '{}' with key '{}': {}", songTitle, uploaderEmail, storageAccessKey, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/approve")
+    public ResponseEntity<String> approveSong(
+            @RequestParam("email") String uploaderEmail,
+            @RequestParam("title") String songTitle) {
+        try {
+            logger.info("Attempting to approve song '{}' by '{}'", songTitle, uploaderEmail);
+            Song songToApprove = approvalService.getPendingApproval(uploaderEmail, songTitle);
+
+            if (songToApprove != null) {
+                songsRepository.save(songToApprove);
+                approvalService.removePendingApproval(uploaderEmail, songTitle);
+                emailService.sendSongApprovedEmail(uploaderEmail, songTitle);
+                logger.info("Song '{}' by '{}' approved successfully. StorageAccessKey: {}", songTitle, uploaderEmail, songToApprove.getStorageAccessKey());
+                return ResponseEntity.ok("Song '" + songTitle + "' by '" + uploaderEmail + "' approved successfully.");
+            } else {
+                logger.warn("Song '{}' by '{}' not found in pending approvals for approval.", songTitle, uploaderEmail);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Song not found in pending approvals.");
+            }
+        } catch (JsonProcessingException e) {
+            logger.error("Error processing song data for approval of '{}' by '{}': {}", songTitle, uploaderEmail, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing song data.");
+        } catch (Exception e) {
+            logger.error("An unexpected error occurred during approval of '{}' by '{}': {}", songTitle, uploaderEmail, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred during approval.");
         }
     }
 }

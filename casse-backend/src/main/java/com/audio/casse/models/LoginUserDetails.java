@@ -1,9 +1,5 @@
 package com.audio.casse.models;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +7,11 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 @Builder
 @Data
@@ -54,7 +55,6 @@ public class LoginUserDetails implements UserDetails, OAuth2User, Serializable {
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
     }
-
 
 
     @Override
