@@ -3,12 +3,12 @@ package com.audio.casse.controller;
 import com.audio.casse.models.Song;
 import com.audio.casse.repository.SongsRepository;
 import com.audio.casse.service.CloudflareR2Service;
+import com.audio.casse.service.DenialService;
 import com.audio.casse.service.EmailService;
 import com.audio.casse.service.PendingApprovalService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,14 +28,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/audio")
 @AllArgsConstructor
+@Slf4j
 public class AudioStreamingController {
-
-    private static final Logger logger = LoggerFactory.getLogger(AudioStreamingController.class);
 
     private final CloudflareR2Service r2Service;
     private final PendingApprovalService approvalService;
     private final SongsRepository songsRepository;
     private final EmailService emailService;
+    private final DenialService denialService; // Inject DenialService
 
     @PostMapping("/upload")
     public String handleUpload(@ModelAttribute Song song,
@@ -47,19 +47,19 @@ public class AudioStreamingController {
         if (!file.isEmpty()) {
             try {
                 song.setStorageAccessKey(file.getOriginalFilename());
-                logger.info("Setting storageAccessKey in AudioStreamingController: {}", song.getStorageAccessKey());
+                log.info("Setting storageAccessKey in AudioStreamingController: {}", song.getStorageAccessKey());
                 r2Service.uploadFile(file, email);
             } catch (IOException e) {
-                logger.error("File upload failed for user {}: {}", email, e.getMessage());
+                log.error("File upload failed for user {}: {}", email, e.getMessage());
                 return "redirect:/home?error=file_upload_failed";
             }
         } else {
-            logger.warn("No file selected for upload by user {}", email);
+            log.warn("No file selected for upload by user {}", email);
             return "redirect:/home?error=no_file_selected";
         }
 
         approvalService.storePendingApproval(email, song);
-        logger.info("Song '{}' submitted for approval by '{}'. StorageAccessKey: {}", song.getTitle(), email, song.getStorageAccessKey());
+        log.info("Song '{}' submitted for approval by '{}'. StorageAccessKey: {}", song.getTitle(), email, song.getStorageAccessKey());
         return "redirect:/home?success=song_submitted";
     }
 
@@ -82,7 +82,7 @@ public class AudioStreamingController {
 
             return new ResponseEntity<>(new InputStreamResource(responseFromS3), headers, HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Error streaming audio direct '{}' for user {}: {}", fileName, authentication.getName(), e.getMessage());
+            log.error("Error streaming audio direct '{}' for user {}: {}", fileName, authentication.getName(), e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -93,7 +93,7 @@ public class AudioStreamingController {
             @RequestParam("title") String songTitle,
             @RequestParam("key") String storageAccessKey) {
         try {
-            logger.info("Streaming approved audio for song '{}' by '{}' with key '{}'", songTitle, uploaderEmail, storageAccessKey);
+            log.info("Streaming approved audio for song '{}' by '{}' with key '{}'", songTitle, uploaderEmail, storageAccessKey);
             ResponseInputStream<GetObjectResponse> responseFromS3 = r2Service.streamFile(storageAccessKey, uploaderEmail);
             GetObjectResponse objectResponse = responseFromS3.response();
 
@@ -105,7 +105,7 @@ public class AudioStreamingController {
 
             return new ResponseEntity<>(new InputStreamResource(responseFromS3), headers, HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Error streaming approved audio for song '{}' by '{}' with key '{}': {}", songTitle, uploaderEmail, storageAccessKey, e.getMessage());
+            log.error("Error streaming approved audio for song '{}' by '{}' with key '{}': {}", songTitle, uploaderEmail, storageAccessKey, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -115,25 +115,39 @@ public class AudioStreamingController {
             @RequestParam("email") String uploaderEmail,
             @RequestParam("title") String songTitle) {
         try {
-            logger.info("Attempting to approve song '{}' by '{}'", songTitle, uploaderEmail);
+            log.info("Attempting to approve song '{}' by '{}'", songTitle, uploaderEmail);
             Song songToApprove = approvalService.getPendingApproval(uploaderEmail, songTitle);
 
             if (songToApprove != null) {
                 songsRepository.save(songToApprove);
                 approvalService.removePendingApproval(uploaderEmail, songTitle);
                 emailService.sendSongApprovedEmail(uploaderEmail, songTitle);
-                logger.info("Song '{}' by '{}' approved successfully. StorageAccessKey: {}", songTitle, uploaderEmail, songToApprove.getStorageAccessKey());
+                log.info("Song '{}' by '{}' approved successfully. StorageAccessKey: {}", songTitle, uploaderEmail, songToApprove.getStorageAccessKey());
                 return ResponseEntity.ok("Song '" + songTitle + "' by '" + uploaderEmail + "' approved successfully.");
             } else {
-                logger.warn("Song '{}' by '{}' not found in pending approvals for approval.", songTitle, uploaderEmail);
+                log.warn("Song '{}' by '{}' not found in pending approvals for approval.", songTitle, uploaderEmail);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Song not found in pending approvals.");
             }
         } catch (JsonProcessingException e) {
-            logger.error("Error processing song data for approval of '{}' by '{}': {}", songTitle, uploaderEmail, e.getMessage());
+            log.error("Error processing song data for approval of '{}' by '{}': {}", songTitle, uploaderEmail, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing song data.");
         } catch (Exception e) {
-            logger.error("An unexpected error occurred during approval of '{}' by '{}': {}", songTitle, uploaderEmail, e.getMessage());
+            log.error("An unexpected error occurred during approval of '{}' by '{}': {}", songTitle, uploaderEmail, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred during approval.");
+        }
+    }
+
+    @GetMapping("/deny")
+    public ResponseEntity<String> denySong(
+            @RequestParam("email") String uploaderEmail,
+            @RequestParam("title") String songTitle) {
+        try {
+            log.info("Attempting to deny song '{}' by '{}'", songTitle, uploaderEmail);
+            denialService.denySong(uploaderEmail, songTitle);
+            return ResponseEntity.ok("Song '" + songTitle + "' by '" + uploaderEmail + "' denied successfully.");
+        } catch (Exception e) {
+            log.error("An unexpected error occurred during denial of '{}' by '{}': {}", songTitle, uploaderEmail, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred during denial.");
         }
     }
 }

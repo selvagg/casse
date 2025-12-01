@@ -89,4 +89,13 @@ public class CloudflareR2Service {
 
         return s3Client.getObject(request);
     }
+
+    public void deleteFile(String fileName, String userName) {
+        DeleteObjectRequest request = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(userName + "/" + fileName)
+                .build();
+
+        s3Client.deleteObject(request);
+    }
 }
