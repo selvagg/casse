@@ -112,6 +112,9 @@
       "email": {
         "type": "keyword",
         "normalizer": "lowercase_fold"
+      },
+      "albumArt": {
+        "type": "text"
       }
     }
   }

@@ -3,7 +3,6 @@ package com.audio.casse.service;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -59,13 +58,6 @@ public class CloudflareR2Service {
                 .build();
 
         s3Client.putObject(request, fromInputStream(file.getInputStream(), file.getSize()));
-    }
-
-    public String generatePresignedUrl(String fileName, String userName) {
-        String objectKey = userName + "/" + fileName;
-        return environment.acceptsProfiles(Profiles.of(SpringProfile.LOCAL.getName())) ?
-                String.format("%s/%s/%s", endpoint, bucketName, objectKey) : // MinIO Direct URL
-                String.format("https://%s.r2.cloudflarestorage.com/%s/%s", bucketName, bucketName, objectKey); // Cloudflare R2
     }
 
     public List<String> listFiles(String userName) {

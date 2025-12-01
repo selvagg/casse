@@ -66,4 +66,7 @@ public class Song {
     private String email;
 
     private String storageAccessKey;
+
+    @Field(type = FieldType.Text)
+    private String albumArt;
 }

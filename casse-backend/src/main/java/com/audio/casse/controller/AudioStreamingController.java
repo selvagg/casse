@@ -40,6 +40,7 @@ public class AudioStreamingController {
     @PostMapping("/upload")
     public String handleUpload(@ModelAttribute Song song,
                                @RequestParam("file") MultipartFile file,
+                               @RequestParam("albumArt") MultipartFile albumArt,
                                @AuthenticationPrincipal OAuth2User principal) throws IOException {
         String email = principal.getAttribute("email");
         song.setEmail(email);
@@ -58,15 +59,42 @@ public class AudioStreamingController {
             return "redirect:/home?error=no_file_selected";
         }
 
+        if (!albumArt.isEmpty()) {
+            try {
+                r2Service.uploadFile(albumArt, email);
+                song.setAlbumArt(albumArt.getOriginalFilename());
+            } catch (IOException e) {
+                log.error("Album art upload failed for user {}: {}", email, e.getMessage());
+                return "redirect:/home?error=album_art_upload_failed";
+            }
+        }
+
         approvalService.storePendingApproval(email, song);
         log.info("Song '{}' submitted for approval by '{}'. StorageAccessKey: {}", song.getTitle(), email, song.getStorageAccessKey());
         return "redirect:/home?success=song_submitted";
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<String>> listAudioFiles(Authentication authentication) {
-        List<String> fileNames = r2Service.listFiles(authentication.getName());
-        return ResponseEntity.ok(fileNames);
+    public ResponseEntity<List<Song>> listAudioFiles(Authentication authentication) {
+        List<Song> songs = songsRepository.findByEmail(authentication.getName());
+        return ResponseEntity.ok(songs);
+    }
+
+    @GetMapping("/album-art/{fileName}")
+    public ResponseEntity<InputStreamResource> streamAlbumArt(@PathVariable String fileName, Authentication authentication) {
+        try {
+            ResponseInputStream<GetObjectResponse> responseFromS3 = r2Service.streamFile(fileName, authentication.getName());
+            GetObjectResponse objectResponse = responseFromS3.response();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType(objectResponse.contentType()));
+            headers.setContentLength(objectResponse.contentLength());
+
+            return new ResponseEntity<>(new InputStreamResource(responseFromS3), headers, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Error streaming album art '{}' for user {}: {}", fileName, authentication.getName(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/stream-direct/{fileName}")
