@@ -23,9 +23,13 @@ public class DenialService {
                 pendingApprovalService.removePendingApproval(uploaderEmail, songTitle);
                 log.info("Deleted Redis entry for song '{}' by '{}'", songTitle, uploaderEmail);
 
-                // 2. Delete S3 object
-                cloudflareR2Service.deleteFile(song.getStorageAccessKey(), uploaderEmail);
+                // 2. Delete S3 objects
+                cloudflareR2Service.deleteSong(song.getStorageAccessKey(), uploaderEmail);
                 log.info("Deleted S3 object for song '{}' by '{}' with key '{}'", songTitle, uploaderEmail, song.getStorageAccessKey());
+                if (song.getAlbumArt() != null && !song.getAlbumArt().isEmpty()) {
+                    cloudflareR2Service.deleteAlbumArt(song.getAlbumArt(), uploaderEmail);
+                    log.info("Deleted S3 object for album art of song '{}' by '{}' with key '{}'", songTitle, uploaderEmail, song.getAlbumArt());
+                }
 
                 // 3. Send denial email
                 emailService.sendSongDeniedEmail(uploaderEmail, songTitle);
