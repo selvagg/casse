@@ -37,17 +37,17 @@ public class AudioStreamingController {
     private final EmailService emailService;
     private final DenialService denialService; // Inject DenialService
 
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String handleUpload(@ModelAttribute Song song,
-                               @RequestParam("file") MultipartFile file,
-                               @RequestParam("albumArt") MultipartFile albumArt,
+                               @RequestPart("audioFile") MultipartFile audioFile,
+                               @RequestPart("albumArtFile") MultipartFile albumArtFile,
                                @AuthenticationPrincipal OAuth2User principal) throws IOException {
         String email = principal.getAttribute("email");
         song.setEmail(email);
 
-        if (!file.isEmpty()) {
+        if (!audioFile.isEmpty()) {
             try {
-                String originalFilename = file.getOriginalFilename();
+                String originalFilename = audioFile.getOriginalFilename();
                 String extension = "";
                 if (originalFilename != null && originalFilename.contains(".")) {
                     extension = originalFilename.substring(originalFilename.lastIndexOf("."));
@@ -55,7 +55,7 @@ public class AudioStreamingController {
                 String newFileName = song.getTitle() + extension;
                 song.setStorageAccessKey(newFileName);
                 log.info("Setting storageAccessKey in AudioStreamingController: {}", song.getStorageAccessKey());
-                r2Service.uploadSong(file, email, newFileName);
+                r2Service.uploadSong(audioFile, email, newFileName);
             } catch (IOException e) {
                 log.error("File upload failed for user {}: {}", email, e.getMessage());
                 return "redirect:/home?error=file_upload_failed";
@@ -65,10 +65,10 @@ public class AudioStreamingController {
             return "redirect:/home?error=no_file_selected";
         }
 
-        if (!albumArt.isEmpty()) {
+        if (!albumArtFile.isEmpty()) {
             try {
-                String originalFilename = albumArt.getOriginalFilename();
-                r2Service.uploadAlbumArt(albumArt, email, originalFilename);
+                String originalFilename = albumArtFile.getOriginalFilename();
+                r2Service.uploadAlbumArt(albumArtFile, email, originalFilename);
                 song.setAlbumArt(originalFilename);
             } catch (IOException e) {
                 log.error("Album art upload failed for user {}: {}", email, e.getMessage());
