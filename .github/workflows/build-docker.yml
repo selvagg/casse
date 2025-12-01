@@ -23,10 +23,10 @@ jobs:
 
       - name: Debug secrets (TEMPORARY - REMOVE AFTER DEBUGGING)
         run: |
-          echo "DOCKER_HUB_USERNAME length: ${#${{ secrets.DOCKER_HUB_USERNAME }}}"
-          echo "DOCKER_HUB_TOKEN length: ${#${{ secrets.DOCKER_HUB_TOKEN }}}"
-          echo "DOCKER_HUB_USERNAME starts with: ${{ secrets.DOCKER_HUB_USERNAME || 'EMPTY' | slice(0, 3) }}"
-          echo "DOCKER_HUB_TOKEN starts with: ${{ secrets.DOCKER_HUB_TOKEN || 'EMPTY' | slice(0, 3) }}"
+          echo "DOCKER_HUB_USERNAME length: ${{ secrets.DOCKER_HUB_USERNAME && secrets.DOCKER_HUB_USERNAME.length || 0 }}"
+          echo "DOCKER_HUB_TOKEN length: ${{ secrets.DOCKER_HUB_TOKEN && secrets.DOCKER_HUB_TOKEN.length || 0 }}"
+          echo "DOCKER_HUB_USERNAME value: ${{ secrets.DOCKER_HUB_USERNAME }}"
+          echo "DOCKER_HUB_TOKEN value: ${{ secrets.DOCKER_HUB_TOKEN }}"
         shell: bash
 
       - name: Log in to Docker Hub
