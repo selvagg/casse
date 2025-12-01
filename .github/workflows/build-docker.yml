@@ -21,10 +21,16 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
       - name: Build and push Docker image with Jib
         uses: gradle/gradle-build-action@v2
         with:
           arguments: jib
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_TOKEN }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_TOKEN }} # Use DOCKER_HUB_TOKEN for better security practices
