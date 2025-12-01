@@ -1,21 +1,17 @@
 package com.audio.casse.models;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.annotations.InnerField;
-import org.springframework.data.elasticsearch.annotations.MultiField;
-
-import java.util.List;
+import org.springframework.data.elasticsearch.annotations.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(indexName = "music_id3")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Song {
 
     @Id
@@ -68,4 +64,6 @@ public class Song {
 
     @Field(type = FieldType.Keyword, normalizer = "lowercase_fold")
     private String email;
+
+    private String storageAccessKey;
 }

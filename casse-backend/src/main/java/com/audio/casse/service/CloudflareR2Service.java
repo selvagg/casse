@@ -1,12 +1,9 @@
 package com.audio.casse.service;
 
-import static software.amazon.awssdk.core.sync.RequestBody.fromInputStream;
-
-import java.io.IOException;
-import java.util.List;
-
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -17,6 +14,12 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.*;
 
+import java.io.IOException;
+import java.util.List;
+
+import static software.amazon.awssdk.core.sync.RequestBody.fromInputStream;
+
+
 @Service
 @Getter
 public class CloudflareR2Service {
@@ -24,15 +27,18 @@ public class CloudflareR2Service {
     private final S3Client s3Client;
     private final String bucketName;
     private final String endpoint;
+    private final Environment environment;
 
     public CloudflareR2Service(
             @Value("${cloudflare.r2.access-key}") String accessKey,
             @Value("${cloudflare.r2.secret-key}") String secretKey,
             @Value("${cloudflare.r2.endpoint}") String endpoint,
-            @Value("${cloudflare.r2.bucket-name}") String bucketName) {
+            @Value("${cloudflare.r2.bucket-name}") String bucketName,
+            Environment environment) {
 
         this.bucketName = bucketName;
         this.endpoint = endpoint;
+        this.environment = environment;
 
         this.s3Client = S3Client.builder()
                 .endpointOverride(java.net.URI.create(endpoint))
@@ -57,7 +63,7 @@ public class CloudflareR2Service {
 
     public String generatePresignedUrl(String fileName, String userName) {
         String objectKey = userName + "/" + fileName;
-        return endpoint.contains("localhost") ?
+        return environment.acceptsProfiles(Profiles.of(SpringProfile.LOCAL.getName())) ?
                 String.format("%s/%s/%s", endpoint, bucketName, objectKey) : // MinIO Direct URL
                 String.format("https://%s.r2.cloudflarestorage.com/%s/%s", bucketName, bucketName, objectKey); // Cloudflare R2
     }
@@ -82,5 +88,14 @@ public class CloudflareR2Service {
                 .build();
 
         return s3Client.getObject(request);
+    }
+
+    public void deleteFile(String fileName, String userName) {
+        DeleteObjectRequest request = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(userName + "/" + fileName)
+                .build();
+
+        s3Client.deleteObject(request);
     }
 }

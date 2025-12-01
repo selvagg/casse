@@ -7,93 +7,78 @@
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-<div>
-    <h1>Welcome, <span th:text="${name}"></span>!</h1>
+<div class="main-content-wrapper">
+    <div>
+        <h1>Welcome, <span th:text="${name}"></span>!</h1>
+    </div>
+    <div class="container-small">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-button">Logout</button>
+        </form>
+    </div>
+    <div class="spacer"></div>
+
+    <!-- Container for the upload form (Song metadata + File Upload) -->
+    <div class="container">
+        <h1>Upload Song for Approval</h1>
+        <form th:action="@{/audio/upload}" th:object="${song}" method="post" enctype="multipart/form-data">
+            <div>
+                <label for="title">Title:</label>
+                <input type="text" id="title" th:field="*{title}" required/>
+            </div>
+            <div>
+                <label for="artists">Artists:</label>
+                <input type="text" id="artists" th:field="*{artists}" required/>
+            </div>
+            <div>
+                <label for="album">Album:</label>
+                <input type="text" id="album" th:field="*{album}"/>
+            </div>
+            <div>
+                <label for="composer">Composer:</label>
+                <input type="text" id="composer" th:field="*{composer}"/>
+            </div>
+            <div>
+                <label for="tags">Tags:</label>
+                <input type="text" id="tags" th:field="*{tags}"/>
+            </div>
+            <div>
+                <label for="audioFile">Audio File:</label>
+                <input type="file" id="audioFile" name="file" accept="audio/*" required/>
+            </div>
+            <button type="submit">Submit for Approval</button>
+        </form>
+    </div>
+
+    <div class="spacer"></div>
+
+    <!-- Song list above the Stream Audio section -->
+    <div class="container">
+        <h2>Available Songs</h2>
+        <ul class="song-list" id="songList">
+            <!-- List of songs will be dynamically populated here -->
+        </ul>
+    </div>
+
+    <div class="spacer"></div>
+
+    <!-- Container for the streaming section -->
+    <div class="container">
+        <h2>Stream Audio</h2>
+        <input type="text" id="fileName" placeholder="Enter filename">
+        <button onclick="playAudio()">Play</button>
+    </div>
+
+    <div class="spacer"></div>
+
+    <!-- Audio player -->
+    <audio id="audioPlayer" controls></audio>
 </div>
-<div class="container-small">
-    <form th:action="@{/logout}" method="post">
-        <button type="submit" class="logout-button">Logout</button>
-    </form>
-</div>
-<div class="spacer"></div>
-
-<!-- Container for the upload form -->
-<div class="container">
-    <h2>Upload Files</h2>
-    <form id="uploadForm">
-        <div class="form-group">
-            <input type="file" id="audioFile" accept="audio/*" required>
-        </div>
-        <button type="submit">Upload</button>
-    </form>
-</div>
-
-<div class="spacer"></div>
-
-<!-- Song list above the Stream Audio section -->
-<div class="container">
-    <h2>Available Songs</h2>
-    <ul class="song-list" id="songList">
-        <!-- List of songs will be dynamically populated here -->
-    </ul>
-</div>
-
-<div class="spacer"></div>
-
-<!-- Container for the streaming section -->
-<div class="container">
-    <h2>Stream Audio</h2>
-    <input type="text" id="fileName" placeholder="Enter filename">
-    <button onclick="playAudio()">Play</button>
-</div>
-
-<div class="spacer"></div>
-
-<!-- Audio player -->
-<audio id="audioPlayer" controls></audio>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
     const userName = /*[[${name}]]*/ 'default-user';
     /*]]>*/
-
-    document.getElementById("uploadForm").addEventListener("submit", async function (event) {
-        event.preventDefault();
-
-        let fileInput = document.getElementById("audioFile");
-        if (fileInput.files.length === 0) {
-            alert("Please select a file.");
-            return;
-        }
-
-        let formData = new FormData();
-        formData.append("file", fileInput.files[0]);
-
-        try {
-            let response = await fetch("/audio/upload", {
-                method: "POST",
-                body: formData
-            });
-
-            let result = await response.text();
-            alert(result);
-            fetchSongList(); // Refresh the list after upload
-        } catch (error) {
-            console.error("Error uploading file:", error);
-        }
-    });
-
-    function playAudio() {
-        let fileName = document.getElementById("fileName").value;
-        if (!fileName) {
-            alert("Please enter a filename.");
-            return;
-        }
-
-        let audioPlayer = document.getElementById("audioPlayer");
-        audioPlayer.src = `/audio/stream-direct/${fileName}`;
-        audioPlayer.play();
-    }
 
     // Function to fetch and display the list of songs
     async function fetchSongList() {
@@ -118,6 +103,18 @@
         } catch (error) {
             console.error("Error fetching song list:", error);
         }
+    }
+
+    function playAudio() {
+        let fileName = document.getElementById("fileName").value;
+        if (!fileName) {
+            alert("Please enter a filename.");
+            return;
+        }
+
+        let audioPlayer = document.getElementById("audioPlayer");
+        audioPlayer.src = `/audio/stream-direct/${fileName}`;
+        audioPlayer.play();
     }
 
     // Fetch the song list when the page loads

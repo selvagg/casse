@@ -1,137 +1,255 @@
-/* Basic Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-/* Body and page background */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f8ff; /* Light blue background */
+    font-family: sans-serif;
+    background-color: #121212; /* Dark background */
+    color: #e0e0e0; /* Light text */
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px; /* Add some padding around the edges */
+    box-sizing: border-box; /* Include padding in element's total width and height */
+}
+
+/* New wrapper for the main content to ensure single column stacking */
+.main-content-wrapper {
+    display: flex;
     flex-direction: column;
+    align-items: center; /* Center items horizontally */
+    width: 100%; /* Take full width */
+    max-width: 800px; /* Optional: limit overall width of the content column */
 }
 
-/* Container for the form */
 .container {
-    background-color: #ffffff;
+    background-color: #1e1e1e;
     padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 300px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    width: 100%;
+    max-width: 600px; /* Max width for larger screens */
+    margin-bottom: 20px; /* Space between stacked containers */
+    text-align: center; /* Center content within the container */
 }
 
-.container-small{
-}
-
-/* Logout button */
-.logout-button {
-    display: inline-block;
-    margin-top: 15px;
-    padding: 5px 10px; /* Smaller padding */
-    background-color: #D21F3C; /* Redis purple */
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 12px; /* Smaller font size */
+.container-small { /* For the logout button container */
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 20px;
     text-align: center;
-    transition: background 0.3s ease-in-out;
-    margin-left: auto;
-    margin-right: auto;
-    display: block; /* Ensure it's centered */
 }
 
-/* Heading */
 h1 {
-    color: #4CAF50; /* Green color for the title */
+    color: #D21F3C; /* Redis purple */
     margin-bottom: 20px;
+    font-size: 2.5em;
+    text-align: center; /* Ensure heading text is centered */
 }
 
-/* Heading */
 h2 {
-    text-align: center;
-    color: #4CAF50; /* Green color for the title */
-    margin-bottom: 20px;
-}
-
-/* Spacer styling */
-.spacer {
-    margin-bottom: 20px;
-}
-
-/* Song list styling */
-ul.song-list {
-    list-style-type: none;
-    padding: 0;
-}
-
-ul.song-list li {
-    background-color: #f4f4f4;
-    margin: 5px 0;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-ul.song-list li:hover {
-    background-color: #e0e0e0;
-}
-/* Form group styling */
-.form-group {
+    color: #D21F3C;
     margin-bottom: 15px;
+    font-size: 1.8em;
 }
 
-/* Label styling */
-label {
-    display: block;
-    color: #333;
-    margin-bottom: 5px;
+p {
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    text-align: center; /* Ensure paragraph text is centered */
 }
 
-/* Input fields styling */
-input[type="email"], input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-/* Button styling */
-button[type="submit"] {
-    width: 100%;
-    padding: 10px;
-    background-color: #9057af; /* Green button */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-button[type="submit"]:hover {
-    background-color: #45a049; /* Darker green on hover */
-}
-
-/* Signup link */
-.signup-link {
-    display: block;
-    text-align: center;
-    margin-top: 15px;
-    color: #4CAF50;
+a {
+    color: #D21F3C;
     text-decoration: none;
 }
 
-.signup-link:hover {
+a:hover {
     text-decoration: underline;
 }
 
-/* Responsive Design: Ensure good display on smaller screens */
-@media (max-width: 600px) {
-    .container {
-        width: 90%;
+/* Form styling for dark theme */
+form {
+    background-color: #1e1e1e; /* Inherit from container */
+    padding: 0; /* Padding handled by container */
+    border-radius: 0; /* Border radius handled by container */
+    box-shadow: none; /* Shadow handled by container */
+    width: 100%;
+    max-width: none; /* Max width handled by container */
+    text-align: left; /* Align form elements to the left */
+}
+
+form div {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #bbbbbb;
+    font-size: 0.95em;
+}
+
+input[type="text"], input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #333;
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+/* Style for the logout button */
+.logout-button {
+    background-color: #D21F3C; /* Redis purple */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block; /* Keep it inline-block for centering within container-small */
+    font-size: 1em;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.logout-button:hover {
+    background-color: #A91B31; /* Darker Redis purple */
+}
+
+/* General button styling */
+button[type="submit"] {
+    background-color: #D21F3C; /* Redis purple */
+    color: white !important;
+    border: none;
+    padding: 12px 25px;
+    text-align: center;
+    text-decoration: none;
+    display: block; /* Ensure it's a block element */
+    font-size: 1em;
+    margin: 20px auto 0 auto; /* Center horizontally and add top margin */
+    cursor: pointer;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 300px; /* Limit width for larger screens */
+}
+
+button[type="submit"]:hover {
+    background-color: #A91B31; /* Darker Redis purple */
+}
+
+/* Audio player styling */
+audio {
+    width: 100%;
+    max-width: 600px;
+    margin-top: 20px;
+}
+
+/* Song list styling */
+.song-list {
+    list-style: none;
+    padding: 0;
+    max-height: 200px; /* Limit height for scrollability */
+    overflow-y: auto;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background-color: #2c2c2c;
+    margin-top: 15px;
+}
+
+.song-list li {
+    padding: 10px;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+    text-align: left;
+}
+
+.song-list li:last-child {
+    border-bottom: none;
+}
+
+.song-list li:hover {
+    background-color: #3a3a3a;
+}
+
+/* Spacer for visual separation */
+.spacer {
+    height: 20px;
+    width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .main-content-wrapper {
+        max-width: 100%;
+    }
+
+    .container, .container-small {
+        padding: 20px;
+        max-width: 95%; /* Use more width on medium screens */
+        margin-bottom: 15px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    h2 {
+        font-size: 1.5em;
+    }
+
+    p {
+        font-size: 1em;
+    }
+
+    input[type="text"], input[type="file"], .logout-button, button[type="submit"] {
+        padding: 10px 15px;
+        font-size: 0.95em;
+        max-width: 100%;
+    }
+
+    .song-list {
+        max-height: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container, .container-small {
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+        margin-bottom: 15px;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+
+    p {
+        font-size: 0.9em;
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-size: 0.9em;
+    }
+
+    input[type="text"], input[type="file"], .logout-button, button[type="submit"] {
+        padding: 8px 10px;
+        font-size: 0.9em;
+    }
+
+    .song-list {
+        max-height: 120px;
     }
 }

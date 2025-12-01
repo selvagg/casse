@@ -46,6 +46,22 @@ spring:
     redis:
       url: redis://redis:6666
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${CASSE_EMAIL}
+    password: ${CASSE_EMAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+casse:
+  pending:
+    approval:
+      ttl: P30D
+  approvers: approvers-emails-as-comma-separated-string
+  base-url: ${CASSE_BASE_URL} # Changed to environment variable
+
 server:
   tomcat:
     max-swallow-size=100MB:
@@ -57,4 +73,3 @@ cloudflare:
     region: auto
     bucket-name: casse-audio
     endpoint: https://${CLOUDFARE_ACCOUNT_ID}.r2.cloudflarestorage.com
-
