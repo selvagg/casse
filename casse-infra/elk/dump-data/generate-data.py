@@ -8,7 +8,7 @@ import sys
 
 ES_HOST = "http://elasticsearch1:9200" # Changed from localhost to elasticsearch1 service name
 INDEX   = "music_id3"
-TOTAL   = 1_000_000
+TOTAL   = 500
 CHUNK   = 5_000
 THREADS    = 4     # number of worker threads
 QUEUE_SIZE = 8     # prefetch queue size per thread

@@ -112,6 +112,12 @@
       "email": {
         "type": "keyword",
         "normalizer": "lowercase_fold"
+      },
+      "storageAccessKey": {
+        "type": "keyword"
+      },
+      "albumArt": {
+        "type": "keyword"
       }
     }
   }

@@ -44,7 +44,11 @@
             </div>
             <div>
                 <label for="audioFile">Audio File:</label>
-                <input type="file" id="audioFile" name="file" accept="audio/*" required/>
+                <input type="file" id="audioFile" name="audioFile" accept="audio/*" required/>
+            </div>
+            <div>
+                <label for="albumArtFile">Album Art:</label>
+                <input type="file" id="albumArtFile" name="albumArtFile" accept="image/*"/>
             </div>
             <button type="submit">Submit for Approval</button>
         </form>
@@ -91,9 +95,19 @@
 
                 songs.forEach(song => {
                     let listItem = document.createElement("li");
-                    listItem.textContent = song; // Assuming the song list contains song names
+
+                    let albumArt = document.createElement("img");
+                    albumArt.src = song.albumArt;
+                    albumArt.style.width = "50px";
+                    albumArt.style.height = "50px";
+                    listItem.appendChild(albumArt);
+
+                    let songTitle = document.createElement("span");
+                    songTitle.textContent = song.title;
+                    listItem.appendChild(songTitle);
+
                     listItem.onclick = () => {
-                        document.getElementById("fileName").value = song; // Set the filename to be streamed
+                        document.getElementById("fileName").value = song.storageAccessKey; // Set the filename to be streamed
                     };
                     songListElement.appendChild(listItem);
                 });

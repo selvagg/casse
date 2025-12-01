@@ -70,6 +70,7 @@ services:
       - elasticsearch1
     networks:
       - casse-network
+    restart: "no"
 
 volumes:
   es_data1:

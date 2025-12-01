@@ -37,18 +37,25 @@ public class AudioStreamingController {
     private final EmailService emailService;
     private final DenialService denialService; // Inject DenialService
 
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String handleUpload(@ModelAttribute Song song,
-                               @RequestParam("file") MultipartFile file,
+                               @RequestPart("audioFile") MultipartFile audioFile,
+                               @RequestPart("albumArtFile") MultipartFile albumArtFile,
                                @AuthenticationPrincipal OAuth2User principal) throws IOException {
         String email = principal.getAttribute("email");
         song.setEmail(email);
 
-        if (!file.isEmpty()) {
+        if (!audioFile.isEmpty()) {
             try {
-                song.setStorageAccessKey(file.getOriginalFilename());
+                String originalFilename = audioFile.getOriginalFilename();
+                String extension = "";
+                if (originalFilename != null && originalFilename.contains(".")) {
+                    extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                }
+                String newFileName = song.getTitle() + extension;
+                song.setStorageAccessKey(newFileName);
                 log.info("Setting storageAccessKey in AudioStreamingController: {}", song.getStorageAccessKey());
-                r2Service.uploadFile(file, email);
+                r2Service.uploadSong(audioFile, email, newFileName);
             } catch (IOException e) {
                 log.error("File upload failed for user {}: {}", email, e.getMessage());
                 return "redirect:/home?error=file_upload_failed";
@@ -58,21 +65,49 @@ public class AudioStreamingController {
             return "redirect:/home?error=no_file_selected";
         }
 
+        if (!albumArtFile.isEmpty()) {
+            try {
+                String originalFilename = albumArtFile.getOriginalFilename();
+                r2Service.uploadAlbumArt(albumArtFile, email, originalFilename);
+                song.setAlbumArt(originalFilename);
+            } catch (IOException e) {
+                log.error("Album art upload failed for user {}: {}", email, e.getMessage());
+                return "redirect:/home?error=album_art_upload_failed";
+            }
+        }
+
         approvalService.storePendingApproval(email, song);
         log.info("Song '{}' submitted for approval by '{}'. StorageAccessKey: {}", song.getTitle(), email, song.getStorageAccessKey());
         return "redirect:/home?success=song_submitted";
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<String>> listAudioFiles(Authentication authentication) {
-        List<String> fileNames = r2Service.listFiles(authentication.getName());
-        return ResponseEntity.ok(fileNames);
+    public ResponseEntity<List<Song>> listAudioFiles(Authentication authentication) {
+        List<Song> songs = songsRepository.findByEmail(authentication.getName());
+        return ResponseEntity.ok(songs);
+    }
+
+    @GetMapping("/album-art/{fileName}")
+    public ResponseEntity<InputStreamResource> streamAlbumArt(@PathVariable String fileName, Authentication authentication) {
+        try {
+            ResponseInputStream<GetObjectResponse> responseFromS3 = r2Service.streamAlbumArt(fileName, authentication.getName());
+            GetObjectResponse objectResponse = responseFromS3.response();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType(objectResponse.contentType()));
+            headers.setContentLength(objectResponse.contentLength());
+
+            return new ResponseEntity<>(new InputStreamResource(responseFromS3), headers, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Error streaming album art '{}' for user {}: {}", fileName, authentication.getName(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/stream-direct/{fileName}")
     public ResponseEntity<InputStreamResource> streamAudio(@PathVariable String fileName, Authentication authentication) {
         try {
-            ResponseInputStream<GetObjectResponse> responseFromS3 = r2Service.streamFile(fileName, authentication.getName());
+            ResponseInputStream<GetObjectResponse> responseFromS3 = r2Service.streamSong(fileName, authentication.getName());
             GetObjectResponse objectResponse = responseFromS3.response();
 
             HttpHeaders headers = new HttpHeaders();
@@ -94,7 +129,7 @@ public class AudioStreamingController {
             @RequestParam("key") String storageAccessKey) {
         try {
             log.info("Streaming approved audio for song '{}' by '{}' with key '{}'", songTitle, uploaderEmail, storageAccessKey);
-            ResponseInputStream<GetObjectResponse> responseFromS3 = r2Service.streamFile(storageAccessKey, uploaderEmail);
+            ResponseInputStream<GetObjectResponse> responseFromS3 = r2Service.streamSong(storageAccessKey, uploaderEmail);
             GetObjectResponse objectResponse = responseFromS3.response();
 
             HttpHeaders headers = new HttpHeaders();
