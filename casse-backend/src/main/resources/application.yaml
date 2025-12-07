@@ -72,4 +72,5 @@ cloudflare:
     secret-key: ${CLOUDFARE_SECRET_KEY}
     region: auto
     bucket-name: casse-audio
-    endpoint: https://${CLOUDFARE_ACCOUNT_ID}.r2.cloudflarestorage.com
+    endpoint: ${CLOUDFARE_R2_ENDPOINT}
+
