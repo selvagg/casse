@@ -7,6 +7,7 @@
 - Docker
 - Docker Compose
 - Java 21
+- Gradle
 
 ### Instructions
 
