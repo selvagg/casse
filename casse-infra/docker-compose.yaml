@@ -101,7 +101,8 @@ services:
 
   data-generator:
     build:
-      context: ./elk/dump-data
+      context: ./elk
+      dockerfile: dump-data/Dockerfile
     container_name: data-generator
     depends_on:
       - elasticsearch1

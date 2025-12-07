@@ -8,13 +8,17 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Copy the requirements file into the container at /app
-COPY requirements.txt .
+COPY dump-data/requirements.txt .
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the current directory contents into the container at /app
-COPY . .
+COPY dump-data/. .
+
+# Copy the mapping json into the container at /app
+
+COPY music_id3_mapping.json .
 
 # Make the entrypoint script executable
 RUN chmod +x entrypoint.sh
