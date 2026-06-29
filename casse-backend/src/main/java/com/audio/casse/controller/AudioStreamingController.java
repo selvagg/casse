@@ -1,5 +1,6 @@
 package com.audio.casse.controller;
 
+import com.audio.casse.models.AuthenticatedUser;
 import com.audio.casse.models.Song;
 import com.audio.casse.repository.SongsRepository;
 import com.audio.casse.service.CloudflareR2Service;
@@ -19,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -50,15 +50,15 @@ public class AudioStreamingController {
      * Handles the upload of a new song and its album art.
      * The uploaded song is submitted for approval.
      *
-     * @param song The song metadata.
-     * @param audioFile The audio file to upload.
+     * @param song         The song metadata.
+     * @param audioFile    The audio file to upload.
      * @param albumArtFile The album art image file to upload.
-     * @param principal The authenticated OAuth2 user principal.
+     * @param principal    The authenticated OAuth2 user principal.
      * @return A redirect string indicating the success or failure of the upload.
      * @throws IOException If an error occurs during file processing.
      */
     @Operation(summary = "Upload a new song",
-               description = "Uploads an audio file and its album art, then submits the song for approval.")
+            description = "Uploads an audio file and its album art, then submits the song for approval.")
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String handleUpload(
             @Parameter(description = "Song metadata including title, artists, album, etc.")
@@ -67,8 +67,8 @@ public class AudioStreamingController {
             @RequestPart("audioFile") MultipartFile audioFile,
             @Parameter(description = "The album art image file to upload.")
             @RequestPart("albumArtFile") MultipartFile albumArtFile,
-            @AuthenticationPrincipal OAuth2User principal) throws IOException {
-        String email = principal.getAttribute("email");
+            @AuthenticationPrincipal AuthenticatedUser principal) throws IOException {
+        String email = principal.name();
         song.setEmail(email);
 
         if (!audioFile.isEmpty()) {
@@ -114,7 +114,7 @@ public class AudioStreamingController {
      * @return A ResponseEntity containing a list of songs.
      */
     @Operation(summary = "List user's uploaded songs",
-               description = "Retrieves all songs uploaded by the currently authenticated user.")
+            description = "Retrieves all songs uploaded by the currently authenticated user.")
     @GetMapping("/list")
     public ResponseEntity<List<Song>> listAudioFiles(
             @Parameter(hidden = true) Authentication authentication) {
@@ -125,12 +125,12 @@ public class AudioStreamingController {
     /**
      * Streams the album art for a given file name.
      *
-     * @param fileName The name of the album art file.
+     * @param fileName       The name of the album art file.
      * @param authentication The authentication object containing user details.
      * @return A ResponseEntity containing the album art as an InputStreamResource.
      */
     @Operation(summary = "Stream album art",
-               description = "Streams the album art image associated with a song.")
+            description = "Streams the album art image associated with a song.")
     @GetMapping("/album-art/{fileName}")
     public ResponseEntity<InputStreamResource> streamAlbumArt(
             @Parameter(description = "The file name of the album art.")
@@ -154,12 +154,12 @@ public class AudioStreamingController {
     /**
      * Streams an audio file directly from storage.
      *
-     * @param fileName The name of the audio file.
+     * @param fileName       The name of the audio file.
      * @param authentication The authentication object containing user details.
      * @return A ResponseEntity containing the audio file as an InputStreamResource.
      */
     @Operation(summary = "Stream audio directly",
-               description = "Streams an audio file directly from storage using its file name.")
+            description = "Streams an audio file directly from storage using its file name.")
     @GetMapping("/stream-direct/{fileName}")
     public ResponseEntity<InputStreamResource> streamAudio(
             @Parameter(description = "The file name of the audio to stream.")
@@ -184,13 +184,13 @@ public class AudioStreamingController {
     /**
      * Streams an approved audio file. This endpoint is typically used for playing approved songs.
      *
-     * @param uploaderEmail The email of the user who uploaded the song.
-     * @param songTitle The title of the song.
+     * @param uploaderEmail    The email of the user who uploaded the song.
+     * @param songTitle        The title of the song.
      * @param storageAccessKey The storage access key for the audio file.
      * @return A ResponseEntity containing the audio file as an InputStreamResource.
      */
     @Operation(summary = "Stream approved audio",
-               description = "Streams an audio file that has been approved, identified by uploader email, song title, and storage key.")
+            description = "Streams an audio file that has been approved, identified by uploader email, song title, and storage key.")
     @GetMapping("/stream")
     public ResponseEntity<InputStreamResource> streamApprovedAudio(
             @Parameter(description = "The email of the user who uploaded the song.")
@@ -221,11 +221,11 @@ public class AudioStreamingController {
      * Approves a pending song. Once approved, the song becomes available for streaming.
      *
      * @param uploaderEmail The email of the user who uploaded the song.
-     * @param songTitle The title of the song to approve.
+     * @param songTitle     The title of the song to approve.
      * @return A ResponseEntity indicating the success or failure of the approval.
      */
     @Operation(summary = "Approve a pending song",
-               description = "Approves a song that was previously submitted for approval, making it available for public access.")
+            description = "Approves a song that was previously submitted for approval, making it available for public access.")
     @GetMapping("/approve")
     public ResponseEntity<String> approveSong(
             @Parameter(description = "The email of the user who uploaded the song.")
@@ -259,11 +259,11 @@ public class AudioStreamingController {
      * Denies a pending song. The song will not be made available for streaming.
      *
      * @param uploaderEmail The email of the user who uploaded the song.
-     * @param songTitle The title of the song to deny.
+     * @param songTitle     The title of the song to deny.
      * @return A ResponseEntity indicating the success or failure of the denial.
      */
     @Operation(summary = "Deny a pending song",
-               description = "Denies a song that was submitted for approval, preventing it from being publicly accessible.")
+            description = "Denies a song that was submitted for approval, preventing it from being publicly accessible.")
     @GetMapping("/deny")
     public ResponseEntity<String> denySong(
             @Parameter(description = "The email of the user who uploaded the song.")

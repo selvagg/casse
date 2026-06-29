@@ -3,33 +3,6 @@ spring:
     name: casse
   elasticsearch:
     uris: http://localhost:9200
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
-            scope: profile, email
-#          facebook:
-#            client-id: YOUR_FACEBOOK_CLIENT_ID
-#            client-secret: YOUR_FACEBOOK_CLIENT_SECRET
-#            scope: public_profile, email
-#          instagram:
-#            client-id: YOUR_INSTAGRAM_CLIENT_ID
-#            client-secret: YOUR_INSTAGRAM_CLIENT_SECRET
-#            scope: user_profile
-#            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-#        provider:
-#          facebook:
-#            authorization-uri: https://www.facebook.com/v11.0/dialog/oauth
-#            token-uri: https://graph.facebook.com/v11.0/oauth/access_token
-#            user-info-uri: https://graph.facebook.com/me?fields=id,name,email
-#          instagram:
-#            authorization-uri: https://api.instagram.com/oauth/authorize
-#            token-uri: https://api.instagram.com/oauth/access_token
-#            user-info-uri: https://graph.instagram.com/me?fields=id,username
-
   session:
     store-type: redis
     redis:
@@ -74,3 +47,11 @@ cloudflare:
     bucket-name: casse-audio
     endpoint: ${CLOUDFARE_R2_ENDPOINT}
 
+oauth:
+  google:
+    client-id: ${GOOGLE_OAUTH_CLIENT_ID}   # must match the iOS app's Google OAuth client ID
+
+jwt:
+  secret: ${JWT_SECRET}                    # 256-bit+ random string, from secrets manager
+  access-token-expiry-seconds: 3600
+  refresh-token-expiry-seconds: 604800     # 7 days - see note in JwtService re: no revocation
