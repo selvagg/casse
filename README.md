@@ -41,7 +41,6 @@
     ```
 
     To push to Docker Hub (Requires env vars DOCKER_HUB_USERNAME and DOCKER_HUB_PASSWORD)
-    gradle casse-backend:jibDockerPush
      ```bash
     gradle :casse-backend:jib
     ```
