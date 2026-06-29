@@ -33,3 +33,15 @@
     ```bash
     export $(cat .env | xargs) && ./gradlew :casse-backend:bootRun
     ```
+4.  **Build Docker Images:**
+
+    To build to your local Docker daemon (requires Docker running locally): 
+    ```bash
+    gradle :casse-backend:jibDockerBuild
+    ```
+
+    To push to Docker Hub (Requires env vars DOCKER_HUB_USERNAME and DOCKER_HUB_PASSWORD)
+    gradle casse-backend:jibDockerPush
+     ```bash
+    gradle :casse-backend:jib
+    ```
